@@ -106,14 +106,27 @@ namespace libint2 {
           // add each component in order
           for(auto comp_idx=0; comp_idx!=component_basis_sets.size(); ++comp_idx) {
             const auto& component_basis_set = component_basis_sets[comp_idx];
-            if (component_basis_set[Z].empty())
-              throw std::string("did not find the basis for this Z in ") +
+            const auto& basis_component_name = basis_component_names[comp_idx];
+
+            //handle augmented basis set, augmented basis set can be empty
+            if((basis_component_name.find("aug-cc-pv") != std::string::npos) && (basis_component_name.find("cabs") != std::string::npos) ){
+
+              if (!component_basis_set[Z].empty()){
+                for(auto s: component_basis_set[Z]) {
+                  this->push_back(std::move(s));
+                  this->back().move({{atoms[a].x, atoms[a].y, atoms[a].z}});
+                }
+            }
+            else{
+              if (component_basis_set[Z].empty())
+                throw std::string("did not find the basis for this Z in ") +
                     basis_lib_path + "/" + basis_component_names[comp_idx] + ".g94";
 
-            for(auto s: component_basis_set[Z]) {
-              this->push_back(std::move(s));
-              this->back().move({{atoms[a].x, atoms[a].y, atoms[a].z}});
-            } // shell loop
+              for(auto s: component_basis_set[Z]) {
+                this->push_back(std::move(s));
+                this->back().move({{atoms[a].x, atoms[a].y, atoms[a].z}});
+              } // shell loop
+            }
           } // basis component loop
         } // atom loop
 
@@ -218,6 +231,11 @@ namespace libint2 {
           std::string base_name = name.substr(4);
           component_names.push_back(base_name);
           component_names.push_back(std::string("augmentation-") + base_name);
+        }
+        else if(name.find("haug-cc-pv")==0 ){
+          std::string base_name = name.substr(5);
+          component_names.push_back(base_name);
+          component_names.push_back(std::string("haugmentation-") + base_name);
         }
         else
           component_names.push_back(name);
