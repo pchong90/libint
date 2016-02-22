@@ -109,23 +109,24 @@ namespace libint2 {
             const auto& basis_component_name = basis_component_names[comp_idx];
 
             //handle augmented basis set, augmented basis set can be empty
-            if((basis_component_name.find("aug-cc-pv") != std::string::npos) && (basis_component_name.find("cabs") != std::string::npos) ){
+            if(basis_component_name.find("augmentation") != std::string::npos) {
 
-              if (!component_basis_set[Z].empty()){
-                for(auto s: component_basis_set[Z]) {
+              if (!component_basis_set[Z].empty()) {
+                for (auto s: component_basis_set[Z]) {
                   this->push_back(std::move(s));
                   this->back().move({{atoms[a].x, atoms[a].y, atoms[a].z}});
                 }
+              }
             }
-            else{
-              if (component_basis_set[Z].empty())
-                throw std::string("did not find the basis for this Z in ") +
-                    basis_lib_path + "/" + basis_component_names[comp_idx] + ".g94";
+            else {
+                if (component_basis_set[Z].empty())
+                  throw std::string("did not find the basis for this Z in ") +
+                        basis_lib_path + "/" + basis_component_names[comp_idx] + ".g94";
 
-              for(auto s: component_basis_set[Z]) {
-                this->push_back(std::move(s));
-                this->back().move({{atoms[a].x, atoms[a].y, atoms[a].z}});
-              } // shell loop
+                for (auto s: component_basis_set[Z]) {
+                  this->push_back(std::move(s));
+                  this->back().move({{atoms[a].x, atoms[a].y, atoms[a].z}});
+                } // shell loop
             }
           } // basis component loop
         } // atom loop
