@@ -38,7 +38,7 @@ exportdir::
 	-$(INSTALL) $(INSTALLLIBOPT) $(SRCTOPDIR)/libint2.pc.in $(TOPDIR)/$(EXPORTDIR)
 	-$(INSTALL) $(INSTALLLIBOPT) $(SRCDIR)/INSTALL.export $(TOPDIR)/$(EXPORTDIR)/INSTALL
 	-$(INSTALL) $(INSTALLLIBOPT) $(SRCDIR)/LICENSE.export $(TOPDIR)/$(EXPORTDIR)/LICENSE
-	-$(INSTALL) $(INSTALLLIBOPT) $(SRCTOPDIR)/README $(TOPDIR)/$(EXPORTDIR)/README
+	-$(INSTALL) $(INSTALLLIBOPT) $(SRCTOPDIR)/README.md $(TOPDIR)/$(EXPORTDIR)/README.md
 	-$(INSTALL) $(INSTALLLIBOPT) $(SRCTOPDIR)/COPYING.LIB $(TOPDIR)/$(EXPORTDIR)/COPYING
 	-$(INSTALL) $(INSTALLLIBOPT) $(SRCTOPDIR)/CITATION $(TOPDIR)/$(EXPORTDIR)/CITATION
 	-$(INSTALL) $(INSTALLLIBOPT) $(SRCDIR)/MakeVars.export $(TOPDIR)/$(EXPORTDIR)/MakeVars.in
@@ -60,12 +60,14 @@ exportdir::
 	$(INSTALL) $(INSTALLDIROPT) $(TOPDIR)/$(EXPORTDIR)/include/libint2
 	$(INSTALL) $(INSTALLDIROPT) $(TOPDIR)/$(EXPORTDIR)/include/libint2/chemistry
 	$(INSTALL) $(INSTALLDIROPT) $(TOPDIR)/$(EXPORTDIR)/include/libint2/util
+	$(INSTALL) $(INSTALLDIROPT) $(TOPDIR)/$(EXPORTDIR)/include/libint2/util/generated
 	-$(INSTALL) $(INSTALLLIBOPT) $(SRCTOPDIR)/include/libint2.h $(TOPDIR)/$(EXPORTDIR)/include
 	-$(INSTALL) $(INSTALLLIBOPT) $(SRCTOPDIR)/include/libint2.hpp $(TOPDIR)/$(EXPORTDIR)/include
 	-$(INSTALL) $(INSTALLLIBOPT) $(SRCTOPDIR)/include/libint2/*.h $(TOPDIR)/$(EXPORTDIR)/include/libint2
 	-$(INSTALL) $(INSTALLLIBOPT) $(SRCTOPDIR)/include/libint2/basis.h.in $(TOPDIR)/$(EXPORTDIR)/include/libint2
 	-$(INSTALL) $(INSTALLLIBOPT) $(SRCTOPDIR)/include/libint2/chemistry/*.h $(TOPDIR)/$(EXPORTDIR)/include/libint2/chemistry
 	-$(INSTALL) $(INSTALLLIBOPT) $(SRCTOPDIR)/include/libint2/util/*.h $(TOPDIR)/$(EXPORTDIR)/include/libint2/util
+	-$(INSTALL) $(INSTALLLIBOPT) $(SRCTOPDIR)/include/libint2/util/generated/*.h $(TOPDIR)/$(EXPORTDIR)/include/libint2/util/generated
 	-$(INSTALL) $(INSTALLLIBOPT) $(TOPDIR)/include/libint2/config.h $(TOPDIR)/$(EXPORTDIR)/include/libint2/config.h.in
 	-$(INSTALL) $(INSTALLLIBOPT) $(TOPDIR)/include/libint2/cgshell_ordering.h $(TOPDIR)/$(EXPORTDIR)/include/libint2
 	-$(INSTALL) $(INSTALLLIBOPT) $(SRCTOPDIR)/src/bin/libint/util_types.h $(TOPDIR)/$(EXPORTDIR)/include

@@ -2,10 +2,10 @@ TOPDIR=../..
 ifndef SRCDIR
   SRCDIR=$(shell pwd)
 endif
--include $(TOPDIR)/src/bin/MakeVars
+-include $(TOPDIR)/tests/MakeVars
 
 # include headers the object include directory
-CPPFLAGS += -I$(TOPDIR)/include -I$(TOPDIR)/include/libint2
+CPPFLAGS += -I$(TOPDIR)/include
 # include headers from the compiler directory
 CPPFLAGS += -I$(SRCDIR)/$(TOPDIR)/src/bin/libint
 # include headers from the src/bin/test_eri directory
@@ -57,6 +57,7 @@ targetclean:: clean
 
 depend:: $(CXXTESTDEP)
 
+ifneq ($(DODEPEND),no)
 ifneq ($(CXXDEPENDSUF),none)
 %.d: %.cc
 	$(CXXDEPEND) $(CXXDEPENDFLAGS) -c $(CPPFLAGS) $(CXXFLAGS) $< > /dev/null
@@ -68,3 +69,4 @@ else
 endif
 
 -include $(CXXTESTDEP)
+endif

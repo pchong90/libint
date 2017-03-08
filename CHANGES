@@ -1,0 +1,24 @@
+
+                           LIBINT REVISION HISTORY
+
+Following is a brief summary of changes made in each release of Libint.
+
+- 2017-xx-yy: 2.3.0-beta.5
+  - 
+
+- 2017-03-06: 2.3.0-beta.4
+  - fixed include path handling of in-place vs. installed generated headers (HT https://github.com/mfherbst)
+  - fixed 2-norm Schwarz computation in hf++
+
+- 2017-01-12: 2.3.0-beta.3
+  - boys.h requires C++11; Chebyshev7 is the default Boys engine, Chebyshev3 is gone.
+
+- 2016-12-15: 2.3.0-beta.2
+  - fixed a bug in r12 core integrals code
+  - added erf- and erfc-attenuated Coulomb integrals
+  - sanitize Eigen includes
+
+- 2016-11-23: 2.3.0-beta.1
+  - read_dotxyz accepts bohr-to-angstrom conversion factor, the default is (still) 2010 CODATA
+
+

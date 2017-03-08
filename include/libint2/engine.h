@@ -86,30 +86,52 @@ __libint2_engine_inline typename std::remove_all_extents<T>::type* to_ptr1(T (&a
 /// BOOST_PP_NBODY_OPERATOR_LIST preprocessor macro (aliases do not need to be included).
 /// \warning for the sake of nbody() order operators by # of particles
 enum class Operator {
-  overlap = 0,  //!< overlap
-  kinetic,  //!< electronic kinetic energy, i.e. \f$ -\frac{1}{2} \nabla^2 \f$
-  nuclear,  //!< Coulomb potential due to point charges
-  emultipole1,  //!< overlap + (Cartesian) electric dipole moment, \f$ x_O, y_O,
-                //! z_O \f$, where \f$ x_O \equiv x - O_x \f$ is relative to
+  /// overlap
+  overlap = 0,
+  /// electronic kinetic energy, i.e. \f$ -\frac{1}{2} \nabla^2 \f$
+  kinetic,
+  /// Coulomb potential due to point charges
+  nuclear,
+  /// overlap + (Cartesian) electric dipole moment,
+  //! \f$ x_O, y_O, z_O \f$, where
+  //! \f$ x_O \equiv x - O_x \f$ is relative to
   //! origin \f$ \vec{O} \f$
-  emultipole2,  //!< emultipole1 + (Cartesian) electric quadrupole moment, \f$
-                //! x^2, xy, xz, y^2, yz, z^2 \f$
-  emultipole3,  //!< emultipole2 + (Cartesian) electric octupole moment, \f$
-                //! x^3, x^2y, x^2z, xy^2, xyz, xz^2, y^3, y^2z, yz^2, z^3 \f$
-  delta,        //!< \f$ \delta(\vec{r}_1 - \vec{r}_2) \f$
-  coulomb,      //!< (2-body) Coulomb operator = \f$ r_{12}^{-1} \f$
-  r12_m1 = coulomb,        //!< alias for Operator::coulomb
-  cgtg,                    //!< contracted Gaussian geminal
-  cgtg_x_coulomb,          //!< contracted Gaussian geminal times Coulomb
-  delcgtg2,                //!< |Delta . contracted Gaussian geminal|^2
-  r12,                     //!< anti-Coulomb operator, \f$ r_{12} \f$
-  r12_1 = r12,             //!< alias for Operator::r12
-  invalid = -1,    // do not modify this
-  // keep this updated
+  emultipole1,
+  /// emultipole1 + (Cartesian) electric quadrupole moment,
+  //! \f$ x^2, xy, xz, y^2, yz, z^2 \f$
+  emultipole2,
+  /// emultipole2 + (Cartesian) electric octupole moment,
+  //! \f$ x^3, x^2y, x^2z, xy^2, xyz, xz^2, y^3, y^2z, yz^2, z^3 \f$
+  emultipole3,
+  /// \f$ \delta(\vec{r}_1 - \vec{r}_2) \f$
+  delta,
+  /// (2-body) Coulomb operator = \f$ r_{12}^{-1} \f$
+  coulomb,
+  /// alias for Operator::coulomb
+  r12_m1 = coulomb,
+  /// contracted Gaussian geminal
+  cgtg,
+  /// contracted Gaussian geminal times Coulomb
+  cgtg_x_coulomb,
+  /// |Delta . contracted Gaussian geminal|^2
+  delcgtg2,
+  /// anti-Coulomb operator, \f$ r_{12} \f$
+  r12,
+  /// alias for Operator::r12
+  r12_1 = r12,
+  /// erf-attenuated Coulomb operator,
+  /// \f$ \mathrm{erf}(\omega r)/r \f$
+  erf_coulomb,
+  /// erfc-attenuated Coulomb operator,
+  /// \f$ \mathrm{erfc}(\omega r)/r \f$
+  erfc_coulomb,
+  // do not modify this
+  invalid = -1,
+  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!keep this updated!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   first_1body_oper = overlap,
   last_1body_oper = emultipole3,
   first_2body_oper = delta,
-  last_2body_oper = r12_1,
+  last_2body_oper = erfc_coulomb,
   first_oper = first_1body_oper,
   last_oper = last_2body_oper
 };
@@ -152,7 +174,7 @@ template <>
 struct operator_traits<Operator::nuclear>
     : public detail::default_operator_traits {
   /// point charges and their positions
-  typedef std::vector<std::pair<double, std::array<double, 3>>>
+  typedef std::vector<std::pair<real_t, std::array<real_t, 3>>>
       oper_params_type;
   static oper_params_type default_params() { return oper_params_type{}; }
   typedef libint2::FmEval_Taylor<double, 7> core_eval_type;
@@ -165,7 +187,7 @@ struct operator_traits<Operator::emultipole1>
   /// moment is defined
   typedef std::array<double, 3> oper_params_type;
   static oper_params_type default_params() {
-    return oper_params_type{{0.0, 0.0, 0.0}};
+    return oper_params_type{{0,0,0}};
   }
   static constexpr auto nopers = 4u;  //!< overlap + 3 dipole components
 };
@@ -186,7 +208,7 @@ struct operator_traits<Operator::emultipole3>
 template <>
 struct operator_traits<Operator::coulomb>
     : public detail::default_operator_traits {
-  typedef libint2::FmEval_Chebyshev3<double> core_eval_type;
+  typedef libint2::FmEval_Chebyshev7<real_t> core_eval_type;
 };
 namespace detail {
 template <int K>
@@ -209,13 +231,36 @@ template <>
 struct operator_traits<Operator::delta>
     : public detail::default_operator_traits {
   typedef libint2::GenericGmEval<libint2::os_core_ints::delta_gm_eval<real_t>>
-      core_eval_type;  // core ints are too trivial to bother
+      core_eval_type;
 };
 
 template <>
 struct operator_traits<Operator::r12>
     : public detail::default_operator_traits {
   typedef libint2::GenericGmEval<libint2::os_core_ints::r12_xx_K_gm_eval<real_t, 1>>
+      core_eval_type;
+};
+
+template <>
+struct operator_traits<Operator::erf_coulomb>
+    : public detail::default_operator_traits {
+  /// the attenuation parameter (0 = zero potential, +infinity = no attenuation)
+  typedef real_t oper_params_type;
+  static oper_params_type default_params() {
+    return oper_params_type{0};
+  }
+  typedef libint2::GenericGmEval<libint2::os_core_ints::erf_coulomb_gm_eval<real_t>>
+      core_eval_type;
+};
+template <>
+struct operator_traits<Operator::erfc_coulomb>
+    : public detail::default_operator_traits {
+  /// the attenuation parameter (0 = no attenuation, +infinity = zero potential)
+  typedef real_t oper_params_type;
+  static oper_params_type default_params() {
+    return oper_params_type{0};
+  }
+  typedef libint2::GenericGmEval<libint2::os_core_ints::erfc_coulomb_gm_eval<real_t>>
       core_eval_type;
 };
 

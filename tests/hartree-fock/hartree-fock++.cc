@@ -1173,10 +1173,11 @@ Matrix compute_schwarz_ints(
         assert(buf[0] != nullptr &&
                "to compute Schwarz ints turn off primitive screening");
 
-        // the diagonal elements are the Schwarz ints ... use Map.diagonal()
+        // to apply Schwarz inequality to individual integrals must use the diagonal elements
+        // to apply it to sets of functions (e.g. shells) use the whole shell-set of ints here
         Eigen::Map<const Matrix> buf_mat(buf[0], n12, n12);
-        auto norm2 = use_2norm ? buf_mat.diagonal().norm()
-                               : buf_mat.diagonal().lpNorm<Eigen::Infinity>();
+        auto norm2 = use_2norm ? buf_mat.norm()
+                               : buf_mat.lpNorm<Eigen::Infinity>();
         K(s1, s2) = std::sqrt(norm2);
         if (bs1_equiv_bs2) K(s2, s1) = K(s1, s2);
       }
@@ -2218,6 +2219,17 @@ void api_basic_compile_test(const BasisSet& obs) {
     auto K =
         compute_schwarz_ints<Operator::delcgtg2>(obs, obs, false, cgtg_params);
     std::cout << "||Del.cGTG||^2 Schwarz ints\n" << K << std::endl;
+  }
+  double attenuation_omega = 1.0;
+  {
+    auto K =
+        compute_schwarz_ints<Operator::erfc_coulomb>(obs, obs, false, attenuation_omega);
+    std::cout << "erfc_coulomb Schwarz ints\n" << K << std::endl;
+  }
+  {
+    auto K =
+        compute_schwarz_ints<Operator::erf_coulomb>(obs, obs, false, attenuation_omega);
+    std::cout << "erf_coulomb Schwarz ints\n" << K << std::endl;
   }
 
   {  // test 2-index ints
